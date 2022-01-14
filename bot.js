@@ -158,7 +158,7 @@ bot.command('/notificationSend', async (ctx) => {
       const data = fs.readFileSync('../db_deprecated/profiles/notifications.json', 'utf8')
       let users = JSON.parse(data)
 
-      users.map(i=>bot.sendMessage(i, c))
+      bot.sendMessage(users, c)
       console.log('рассылка проведена')
 
     } else {
@@ -533,6 +533,91 @@ bot.command('/about', async (ctx) => {
   try {
 
     ctx.reply('LeagueBot © 2022 Александр Абазов\nGithub проекта: https://github.com/UnhappyF/league-bot\n')
+
+
+  } catch (err) {
+    console.error(err)
+  }
+
+});
+
+bot.command('/random', async (ctx) => {
+
+  try {
+    let command = ctx.message.text.split(' ')
+    
+
+    if(command[1] ==='me' && command[2]) {
+      let tmp = command[1]
+      command[1] = command[2]
+      command[2] = tmp
+    }
+
+
+    const data = fs.readFileSync('./champions_ru.json', 'utf8')
+    let champs = JSON.parse(data).data
+    let ans = 'a'
+    if(command[2] === 'me' || command[1] === 'me') {
+
+
+      const data = fs.readFileSync('../db_deprecated/profiles/profiles.json', 'utf8')
+      let players = JSON.parse(data)
+
+      const p = players.find(i => i.vkId === ctx.message.from_id)
+      if(p) {
+
+        await axios.get(`${RIOT_API}/lol/champion-mastery/v4/champion-masteries/by-summoner/${p.id}?api_key=${RIOT_KEY}`).then(async res => {
+
+          res = res.data.slice(0,15)
+
+          for (let c in champs) {
+            console.log(champs[c].key, res[1].championId)
+            if(!res.find(i=>i.championId == champs[c].key)) {
+              delete champs[c]
+            }
+
+          }
+
+        })
+
+
+      } else {
+        ctx.reply(`Аккаунт не привязан`);
+        return
+      }
+
+
+    }
+    console.log(ans, command[1])
+
+    if(command[1] && command[1] != 'me') {
+      if(command[1] === 'adc') command[1] = 'Marksman'
+      if(command[1] === 'bruzer') command[1] = 'Fighter'
+      if(command[1] === 'sup') command[1] = 'Support'
+      for (let c in champs) {
+        console.log(command[1], champs[c].tags, !champs[c].tags.find(i=>i.toLocaleLowerCase()==command[1].toLocaleLowerCase()))
+        if(!champs[c].tags.find(i=>i.toLocaleLowerCase()==command[1].toLocaleLowerCase())) {
+          delete champs[c]
+        }
+
+      }
+    }
+
+    console.log(champs)
+    const rand = (Math.random() * (Object.keys(champs).length-1)).toFixed(0);
+    let i=0
+    let message = ''
+    console.log(rand, Object.keys(champs).length)
+    for (let c in champs) {
+      let value = champs[c]
+      if(i===parseInt(rand)) {
+        message += value.name+'\n'
+      }
+      i++
+
+    }
+
+    ctx.reply(message)
 
 
   } catch (err) {
