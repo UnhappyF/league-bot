@@ -528,6 +528,19 @@ bot.command('/anek', async (ctx) => {
 
 });
 
+bot.command('/about', async (ctx) => {
+
+  try {
+
+    ctx.reply('LeagueBot © 2022 Александр Абазов\nGithub проекта: https://github.com/UnhappyF/league-bot\n')
+
+
+  } catch (err) {
+    console.error(err)
+  }
+
+});
+
 bot.command('/iq', async (ctx) => {
 
   try {
