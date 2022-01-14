@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "node-vk-bot-api": "latest",
+    "promise": "latest",
+    "axios": "latest",
+    "dotenv": "latest"
+  }
+}

@@ -1,10 +1,12 @@
 const VkBot = require('node-vk-bot-api');
 const axios = require('axios');
-const AsciiTable = require('ascii-table')
 var Promise = require('promise');
 var matchAnalysis = require("./matchAnalisys");
 const fs = require('fs');
 
+require('dotenv').config()
+
+console.log(process.env.VK_API_KEY)
 const bot = new VkBot(process.env.VK_API_KEY);
 const RIOT_API = 'https://ru.api.riotgames.com'
 const RIOT_KEY = process.env.RIOT_API_KEY
