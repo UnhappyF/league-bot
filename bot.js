@@ -363,7 +363,7 @@ bot.command('/live', async (ctx) => {
             } else {
               let message = ''
               let champName = '';
-              const data = fs.readFileSync('../db_deprecated/champions.json', 'utf8')
+              const data = fs.readFileSync('./champions.json', 'utf8')
               let champs = JSON.parse(data).data
               table.map(i=> {
                 const champId = i.data.participants.find(j=>j.summonerId === i.id).championId
