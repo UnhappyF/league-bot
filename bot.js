@@ -5,10 +5,10 @@ var Promise = require('promise');
 var matchAnalysis = require("./matchAnalisys");
 const fs = require('fs');
 
-const bot = new VkBot('53cd802ebe3760c6956c123e4c086126132e35cd2ff4d9111916d213f2a2f5c9ae99e93b617429b4fd77e');
+const bot = new VkBot(process.env.VK_API_KEY);
 const RIOT_API = 'https://ru.api.riotgames.com'
-const RIOT_KEY = 'RGAPI-8398e059-80df-4979-bf0b-c3f4a645df3a'
-const ADMIN_ID = 445165079
+const RIOT_KEY = process.env.RIOT_API_KEY
+const ADMIN_ID = process.env.ADMIN_VK_ID
 
 
 
@@ -48,14 +48,14 @@ bot.command('/add', async (ctx) => {
       console.log(response.data)
 
       try {
-        let data = fs.readFileSync('./db_deprecated/profiles/profiles.json', 'utf8')
+        let data = fs.readFileSync('../db_deprecated/profiles/profiles.json', 'utf8')
         data = JSON.parse(data)
         console.log(data, c[2], i=>i.name===c[2])
         if(data.find(i=>i.name===c[2])) {
           ctx.reply(`Я его уже знаю, клоун`);
         } else {
           data.push(response.data)
-          fs.writeFile('./db_deprecated/profiles/profiles.json', JSON.stringify(data), function (err) {
+          fs.writeFile('../db_deprecated/profiles/profiles.json', JSON.stringify(data), function (err) {
             if (err) throw err;
             console.log('file profiles saved!');
           });
@@ -86,14 +86,14 @@ bot.command('/bind', async (ctx) => {
       console.log(response.data)
 
       try {
-        let data = fs.readFileSync('./db_deprecated/profiles/profiles.json', 'utf8')
+        let data = fs.readFileSync('../db_deprecated/profiles/profiles.json', 'utf8')
         data = JSON.parse(data)
         console.log(data, c[2], i=>i.name===c[2])
         if(data.find(i=>i.name===c[2])) {
           if(data.find(i=>i.vkId === ctx.message.from_id))
             data.find(i=>i.vkId === ctx.message.from_id).vkId=0
           data.find(i=>i.name===c[2]).vkId=ctx.message.from_id
-          fs.writeFile('./db_deprecated/profiles/profiles.json', JSON.stringify(data), function (err) {
+          fs.writeFile('../db_deprecated/profiles/profiles.json', JSON.stringify(data), function (err) {
             if (err) throw err;
             console.log('file profiles saved!');
           });
@@ -116,7 +116,7 @@ bot.command('/bind', async (ctx) => {
 bot.command('/ranks', async (ctx) => {
 
   try {
-    const data = fs.readFileSync('./db_deprecated/profiles/profiles.json', 'utf8')
+    const data = fs.readFileSync('../db_deprecated/profiles/profiles.json', 'utf8')
     let players = JSON.parse(data)
     let table = ''
     Promise.all(players.map(i=>{
@@ -153,7 +153,7 @@ bot.command('/notificationSend', async (ctx) => {
   let c = ctx.message.text.split(' ').slice(1,ctx.message.text.split(' ').length).join(' ')
   try {
     if(ADMIN_ID === ctx.message.from_id) {
-      const data = fs.readFileSync('./db_deprecated/profiles/notifications.json', 'utf8')
+      const data = fs.readFileSync('../db_deprecated/profiles/notifications.json', 'utf8')
       let users = JSON.parse(data)
 
       users.map(i=>bot.sendMessage(i, c))
@@ -173,7 +173,7 @@ bot.command('/notificationSend', async (ctx) => {
 bot.command('/notifications', async (ctx) => {
 
   try {
-    const data = fs.readFileSync('./db_deprecated/profiles/notifications.json', 'utf8')
+    const data = fs.readFileSync('../db_deprecated/profiles/notifications.json', 'utf8')
     let users = JSON.parse(data)
 
     if(users.find(i=>i===ctx.message.from_id)){
@@ -184,7 +184,7 @@ bot.command('/notifications', async (ctx) => {
       ctx.reply('Вы подписались на уведомления, чтобы отписаться напишите /notifications')
     }
 
-    fs.writeFile('./db_deprecated/profiles/notifications.json', JSON.stringify(users), function (err) {
+    fs.writeFile('../db_deprecated/profiles/notifications.json', JSON.stringify(users), function (err) {
       if (err) throw err;
       console.log('file notifications.json saved!');
     });
@@ -255,7 +255,7 @@ bot.command('/last', async (ctx) => {
   try {
     let c = ctx.message.text.split(' ')
 
-    const data = fs.readFileSync('./db_deprecated/profiles/profiles.json', 'utf8')
+    const data = fs.readFileSync('../db_deprecated/profiles/profiles.json', 'utf8')
     let players = JSON.parse(data)
 
     const p = players.find(i => i.vkId === ctx.message.from_id)
@@ -301,7 +301,7 @@ bot.command('/live', async (ctx) => {
     let c = ctx.message.text.split(' ')
     let table = []
     if (c[1] === 'me') {
-      const data = fs.readFileSync('./db_deprecated/profiles/profiles.json', 'utf8')
+      const data = fs.readFileSync('../db_deprecated/profiles/profiles.json', 'utf8')
       let players = JSON.parse(data)
       const p = players.find(i=>i.vkId === ctx.message.from_id)
 
@@ -341,7 +341,7 @@ bot.command('/live', async (ctx) => {
     }
 
     if (c[1] === 'all' || !c[1]) {
-      const data = fs.readFileSync('./db_deprecated/profiles/profiles.json', 'utf8')
+      const data = fs.readFileSync('../db_deprecated/profiles/profiles.json', 'utf8')
       let players = JSON.parse(data)
 
       Promise.all(players.map(i=>{
@@ -361,7 +361,7 @@ bot.command('/live', async (ctx) => {
             } else {
               let message = ''
               let champName = '';
-              const data = fs.readFileSync('./db_deprecated/champions.json', 'utf8')
+              const data = fs.readFileSync('../db_deprecated/champions.json', 'utf8')
               let champs = JSON.parse(data).data
               table.map(i=> {
                 const champId = i.data.participants.find(j=>j.summonerId === i.id).championId
@@ -392,7 +392,7 @@ bot.command('/mastery', async (ctx) => {
   try {
 
     let c = ctx.message.text.split(' ')
-    const data = fs.readFileSync('./db_deprecated/profiles/profiles.json', 'utf8')
+    const data = fs.readFileSync('../db_deprecated/profiles/profiles.json', 'utf8')
     let players = JSON.parse(data)
 
     const p = players.find(i => i.vkId === ctx.message.from_id)
@@ -479,7 +479,7 @@ bot.command('/ans', async (ctx) => {
     console.log(c[1].toLocaleLowerCase(), quiz_ans.toLocaleLowerCase().split(' ')[0]);
     if(c[1].toLocaleLowerCase() === quiz_ans.toLocaleLowerCase().split(' ')[0]){
       quiz_ans = undefined
-    const data = fs.readFileSync('./db_deprecated/profiles/quiz.json', 'utf8')
+    const data = fs.readFileSync('../db_deprecated/profiles/quiz.json', 'utf8')
     let players = JSON.parse(data)
 
     if(players.find(i=>i.vk===ctx.message.from_id)){
@@ -487,7 +487,7 @@ bot.command('/ans', async (ctx) => {
     } else {
       players.push({vk: ctx.message.from_id, pts: 1})
     }
-    fs.writeFile('./db_deprecated/profiles/quiz.json', JSON.stringify(players), function (err) {
+    fs.writeFile('../db_deprecated/profiles/quiz.json', JSON.stringify(players), function (err) {
       if (err) throw err;
       console.log('file profiles saved!');
     });
@@ -513,7 +513,7 @@ bot.command('/anek', async (ctx) => {
 
     let c = ctx.message.text.split(' ')
 
-    const data = fs.readFileSync('./db_deprecated/anek/anekdots.json', 'utf8')
+    const data = fs.readFileSync('../db_deprecated/anek/anekdots.json', 'utf8')
     let aneks = JSON.parse(data)
     const rand = Math.trunc(Math.random()*aneks.length)
     console.log(rand)
@@ -529,7 +529,7 @@ bot.command('/anek', async (ctx) => {
 bot.command('/iq', async (ctx) => {
 
   try {
-      const data = fs.readFileSync('./db_deprecated/profiles/quiz.json', 'utf8')
+      const data = fs.readFileSync('../db_deprecated/profiles/quiz.json', 'utf8')
       let players = JSON.parse(data)
       let message = ''
       if(players.find(i=>i.vk===ctx.message.from_id)){
@@ -600,7 +600,7 @@ bot.command('/шутняра', async (ctx) => {
   test = []
 
   try {
-    const data = fs.readFileSync('./db_deprecated/profiles/profiles.json', 'utf8')
+    const data = fs.readFileSync('../db_deprecated/profiles/profiles.json', 'utf8')
     let players = JSON.parse(data)
 
     Promise.all(players.map(i=>{
@@ -646,7 +646,7 @@ bot.command('/парад бомжей', async (ctx) => {
   test = []
 
   try {
-    const data = fs.readFileSync('./db_deprecated/profiles/profiles.json', 'utf8')
+    const data = fs.readFileSync('../db_deprecated/profiles/profiles.json', 'utf8')
     let players = JSON.parse(data)
 
     Promise.all(players.map(i=>{
@@ -724,7 +724,7 @@ bot.command('/best', async (ctx) => {
   test2 = []
 
   try {
-    const data = fs.readFileSync('./db_deprecated/profiles/profiles.json', 'utf8')
+    const data = fs.readFileSync('../db_deprecated/profiles/profiles.json', 'utf8')
     let players = JSON.parse(data)
 
     Promise.all(players.map(i=>{
