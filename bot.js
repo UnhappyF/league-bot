@@ -138,8 +138,9 @@ bot.command('/ranks', async (ctx) => {
 bot.command('/attention', async (ctx) => {
 
   let c = ctx.message.text.split(' ').slice(1,ctx.message.text.split(' ').length).join(' ')
+  console.log(ADMIN_ID, ctx.message.from_id)
   try {
-    if(ADMIN_ID === ctx.message.from_id) {
+    if(ADMIN_ID == ctx.message.from_id) {
       bot.sendMessage(process.env.GENERAL_GROUP, c);
     } else {
       ctx.reply('У тебя здесь нет власти')
@@ -157,7 +158,7 @@ bot.command('/notificationSend', async (ctx) => {
   console.log(ctx.message.from_id)
   let c = ctx.message.text.split(' ').slice(1,ctx.message.text.split(' ').length).join(' ')
   try {
-    if(ADMIN_ID === ctx.message.from_id) {
+    if(ADMIN_ID == ctx.message.from_id) {
       const data = fs.readFileSync('../db_deprecated/profiles/notifications.json', 'utf8')
       let users = JSON.parse(data)
 
