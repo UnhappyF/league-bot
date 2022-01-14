@@ -139,8 +139,11 @@ bot.command('/attention', async (ctx) => {
 
   let c = ctx.message.text.split(' ').slice(1,ctx.message.text.split(' ').length).join(' ')
   try {
-    bot.sendMessage(2000000002, c);
-
+    if(ADMIN_ID === ctx.message.from_id) {
+      bot.sendMessage(process.env.GENERAL_GROUP, c);
+    } else {
+      ctx.reply('У тебя здесь нет власти')
+    }
 
 
   } catch (err) {
@@ -545,7 +548,7 @@ bot.command('/random', async (ctx) => {
 
   try {
     let command = ctx.message.text.split(' ')
-    
+
 
     if(command[1] ==='me' && command[2]) {
       let tmp = command[1]
