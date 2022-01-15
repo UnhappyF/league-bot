@@ -275,7 +275,11 @@ bot.command('/last', async (ctx) => {
           if(c[1] && c[1] === 'full') {
             const ans = matchAnalysis.getMessage(res2.data.info, p.name)
             ctx.reply(ans[0])
-            bestMatch.bestCheck(ans[1],res2.data.info, p.name, ans[0], bot)
+            const isBots = res2.data.info.participants.find(i=>i.bot===true)
+            console.log(res2.data.info.gameMode, res2.data.info.gameType, isBots)
+            if(res2.data.info.gameMode === 'CLASSIC' && !isBots && res2.data.info.gameType === 'MATCHED_GAME') {
+              bestMatch.bestCheck(ans[1], res2.data.info, p.name, ans[0], bot)
+            }
 
           } else {
             ctx.reply(getMatchMessage(res2.data.info, p.name))
