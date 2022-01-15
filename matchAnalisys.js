@@ -132,10 +132,14 @@
         }
 
 
-        return message
+
+
+        return [message, score]
 
 
 
     }
+
+
 
 }());

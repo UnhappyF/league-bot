@@ -2,6 +2,7 @@ const VkBot = require('node-vk-bot-api');
 const axios = require('axios');
 var Promise = require('promise');
 var matchAnalysis = require("./matchAnalisys");
+var bestMatch = require("./bestMatch");
 const fs = require('fs');
 
 require('dotenv').config()
@@ -272,7 +273,10 @@ bot.command('/last', async (ctx) => {
 
         await axios.get(`https://europe.api.riotgames.com/lol/match/v5/matches/${res.data[0]}?api_key=${RIOT_KEY}`).then(res2 => {
           if(c[1] && c[1] === 'full') {
-            ctx.reply(matchAnalysis.getMessage(res2.data.info, p.name))
+            const ans = matchAnalysis.getMessage(res2.data.info, p.name)
+            ctx.reply(ans[0])
+            bestMatch.bestCheck(ans[1],res2.data.info, p.name, ans[0], bot)
+
           } else {
             ctx.reply(getMatchMessage(res2.data.info, p.name))
           }
@@ -789,75 +793,18 @@ bot.command('/парад бомжей', async (ctx) => {
 
 });
 
-let test2 = []
-const getBestOf = async (puuid, count, ctx) => {
-  return await axios.get(`https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=${count}&api_key=${RIOT_KEY}`).then( res => {
-    let mas = []
-
-    Promise.all(res.data.map(i=>{
-      return getMatch(i).then(val=>{mas.push(val.data.info)})
-    })).then(()=>{
 
 
-      let ans = mas.sort((a,b)=>{
-        const a2 = a.participants.find(i=>i.puuid===puuid)
-        const b2 = b.participants.find(i=>i.puuid===puuid)
-        if(a2.deaths === 0)
-          return 1
-        if(b2.deaths === 0)
-          return -1
-        return (b2.kills + b2.assists) / b2.deaths - (a2.kills + a2.assists) / a2.deaths
-
-      })
-
-
-      test2.push({
-        puuid: puuid,
-        matchm: ans[0]
-      })
-
-    })
-
-  }).catch(err=>{ctx.reply('Брат рито душат, подожди минуту');console.log(err)})
-
-
-}
 
 bot.command('/best', async (ctx) => {
 
-  test2 = []
+
 
   try {
-    const data = fs.readFileSync('../db_deprecated/profiles/profiles.json', 'utf8')
-    let players = JSON.parse(data)
+    const data = fs.readFileSync('../db_deprecated/best.json', 'utf8')
+    let best = JSON.parse(data)
+    ctx.reply(matchAnalysis.getMessage(best.game, best.name)[0])
 
-    Promise.all(players.map(i=>{
-      return getBestOf(i.puuid, 1, ctx).then(res=>console.log(res))
-    })).then(()=>{
-
-    })
-
-    setTimeout(()=>{
-      console.log(test2)
-      try {
-
-
-        let winner = test2.sort((a, b) => {
-          return getKDA(b.matchm.participants.find(i => i.puuid === b.puuid)) - getKDA(a.matchm.participants.find(i => i.puuid === a.puuid))
-
-        })[0]
-
-        let msg = getMatchMessage(winner.matchm, winner.matchm.participants.find(i => i.puuid === winner.puuid).summonerName)
-        if (winner.matchm.participants.find(i => i.puuid === winner.puuid).win) {
-          msg += 'Закерил бомжей в соло\n'
-        } else {
-          msg += 'Тим диф был слишком велик\n'
-        }
-        ctx.reply('Гроза бомжей ру сервера: \n' + msg);
-      } catch {
-
-      }
-    }, 2000)
 
 
   } catch (err) {
