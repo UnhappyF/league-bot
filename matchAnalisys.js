@@ -6,7 +6,7 @@
         console.log(game)
         console.log(game.participants.find(i=>i.summonerName === name))
         const p_game = game.participants.find(i=>i.summonerName === name)
-        let score = p_game.win ? 1 : 0
+        let score = p_game.win ? 2 : -1
         const kda = ((parseInt(p_game.kills) + parseInt(p_game.assists)) / (p_game.deaths===0 ? 1 : parseInt(p_game.deaths))).toFixed(2)
         if(kda < 2) {
             score -= 4
@@ -15,6 +15,7 @@
             score += 4
         }
         let message = name + '\n'
+        const gameDurationMins = game.gameDuration/60
         message += (p_game.win === true ? 'Славная Победа!\n' : 'Позорное Поражение!\n')
         message += `Катка длилась ${(game.gameDuration/60).toFixed(0)} минут\n`
         message += 'https://www.leagueofgraphs.com/ru/match/ru/' + game.gameId +'\n'
@@ -35,41 +36,41 @@
         }
         if(p_game.pentaKills > 0) {
             message += 'Пентакил\n'
-            score +=10
+            score +=10*p_game.pentaKills
         } else {
             if(p_game.quadraKills > 0) {
                 message += 'Квадракил\n'
-                score +=7
+                score +=7*p_game.quadraKills
             }
             else {
                 if (p_game.trippleKills > 0) {
                     message += 'Триплкил\n'
-                    score += 3
+                    score += 3*p_game.trippleKills
                 }
             }
         }
 
-        if(p_game.wardsPlaced < 8) {
+        if(p_game.wardsPlaced/gameDurationMins < 0.3) {
             message += `Мало вардов, всего ${p_game.wardsPlaced} за игру\n`
             score -= 3
         }
 
         if(p_game.largestKillingSpree > 5) {
             message += `Стрик килов = ${p_game.largestKillingSpree}, неплохо\n`
-            score += 3
+            score += p_game.largestKillingSpree
         }
 
 
         if(p_game.baronKills > 0) {
-            score += 5
+            score += 5*p_game.baronKills
         }
         message += `дамаг по объектам = ${p_game.damageDealtToObjectives}\n`
-        if(p_game.damageDealtToObjectives > 7000) {
+        if(p_game.damageDealtToObjectives/gameDurationMins > 400) {
 
             score += 3
         }
 
-        if(p_game.damageDealtToObjectives < 3000) {
+        if(p_game.damageDealtToObjectives/gameDurationMins < 100) {
             score -= 3
         }
 
@@ -90,11 +91,11 @@
 
 
 
-        if(p_game.visionScore > 30) {
+        if(p_game.visionScore/gameDurationMins > 0.8) {
             message += `Хороший вижн\n`
             score += 5
         }
-        if(p_game.visionScore < 5) {
+        if(p_game.visionScore/gameDurationMins < 0.2) {
             message += `Плохой вижн\n`
             score -= 5
         }
@@ -112,12 +113,45 @@
             score += 2
         }
 
+        if(p_game.firstBloodAssist) {
+            message += `Помог оформить фб\n`
+            score += 1
+        }
+        if(p_game.firstTowerAssist) {
+            message += `Помог забрать первую башню\n`
+            score += 1
+        }
+
         if(p_game.objectivesStolen) {
             message += `Застилил ${p_game.objectivesStolen} объектов\n`
             score += 4*p_game.objectivesStolen
         }
 
+        const cs = p_game.totalMinionsKilled + p_game.neutralMinionsKilled
+
+        if(p_game.role !== 'SUPPORT') {
+            if (cs / gameDurationMins < 5) {
+                message += `Плохой фарм\n`
+                score -= 2
+            }
+
+            if (cs / gameDurationMins > 7) {
+                message += `Хороший фарм\n`
+                score += 2
+            }
+
+
+
+        } else {
+            message += `Похилял тимейтов на: ${p_game.totalHealsOnTeammates}\n`
+
+            if(p_game.kills > p_game.assists) {
+                message += `Килов больше ассистов, ясно очередной 'саппорт'\n`
+            }
+        }
+
         message += `Заработано ${p_game.goldEarned} голды, из которых потрачено ${p_game.goldSpent}\n`
+        message += `Проведено в таверне : ${p_game.totalTimeSpentDead} секунд\n`
         message += `Рейтинг: ${score}\n`
 
         if(score <= 0) {
