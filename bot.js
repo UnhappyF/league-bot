@@ -279,6 +279,7 @@ bot.command('/last', async (ctx) => {
             console.log(res2.data.info.gameMode, res2.data.info.gameType, isBots)
             if(res2.data.info.gameMode === 'CLASSIC' && !isBots && res2.data.info.gameType === 'MATCHED_GAME') {
               bestMatch.bestCheck(ans[1], res2.data.info, p.name, ans[0], bot)
+              bestMatch.worstCheck(ans[1], res2.data.info, p.name, ans[0], bot)
             }
 
           } else {
@@ -808,6 +809,24 @@ bot.command('/best', async (ctx) => {
     const data = fs.readFileSync('../db_deprecated/best.json', 'utf8')
     let best = JSON.parse(data)
     ctx.reply(matchAnalysis.getMessage(best.game, best.name)[0])
+
+
+
+  } catch (err) {
+    console.error(err)
+  }
+
+});
+
+
+bot.command('/worst', async (ctx) => {
+
+
+
+  try {
+    const data = fs.readFileSync('../db_deprecated/worst.json', 'utf8')
+    let worst = JSON.parse(data)
+    ctx.reply(matchAnalysis.getMessage(worst.game, worst.name)[0])
 
 
 
