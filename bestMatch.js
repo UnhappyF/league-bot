@@ -11,7 +11,7 @@ const fs = require('fs');
         const data2 = fs.readFileSync('../db_deprecated/profiles/notifications.json', 'utf8')
         let usersNotifi = JSON.parse(data2)
         console.log(best.score, score, !best.score, best.score < score)
-        if(!best.score || best.score < score) {
+        if(best.length === 0  || best.score < score) {
             const data = fs.readFileSync('../db_deprecated/profiles/profiles.json', 'utf8')
             let players = JSON.parse(data)
             const idNewBest = players.find(i=>i.name===name).vkId
@@ -60,7 +60,9 @@ const fs = require('fs');
         const data2 = fs.readFileSync('../db_deprecated/profiles/notifications.json', 'utf8')
         let usersNotifi = JSON.parse(data2)
         console.log(worst.score, score)
-        if(!worst.score || worst.score > score) {
+
+
+        if(worst.length === 0 || worst.score > score) {
             const data = fs.readFileSync('../db_deprecated/profiles/profiles.json', 'utf8')
             let players = JSON.parse(data)
             const idNewWorst = players.find(i=>i.name===name).vkId
